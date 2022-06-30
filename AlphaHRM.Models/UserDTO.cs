@@ -8,13 +8,13 @@ namespace AlphaHRM.Models
 {
     public class UserDTO
     {
-        public Guid ID { get;  }
-        public string Name { get;  }
-        public int Phone { get;  }
-        public string Email { get;  }
-        public string Job { get;  }
-        public int Type { get;  }
-        public string Password { get; }
-        public Guid ManagerId { get; }
+        public Guid ID { get; set; }
+        public string Name { get; set; }
+        public int Phone { get; set;  }
+        public string Email { get; set;  }
+        public string Job { get; set;  }
+        public bool Type { get; set; }
+        public string Password { get; set; }
+        public Guid? ManagerId { get; set; }
     }
 }

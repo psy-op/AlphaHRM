@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlphaHRM.Intereface", "Alph
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlphaHRM.WebApi", "AlphaHRM.WebApi\AlphaHRM.WebApi.csproj", "{00F63113-D94B-4018-8B9C-CA79B6E35556}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlphaHRM.Mapper", "AlphaHRM.Mapper\AlphaHRM.Mapper.csproj", "{B28D5338-5C08-4AC8-A8C5-2784591F9538}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{00F63113-D94B-4018-8B9C-CA79B6E35556}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00F63113-D94B-4018-8B9C-CA79B6E35556}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00F63113-D94B-4018-8B9C-CA79B6E35556}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B28D5338-5C08-4AC8-A8C5-2784591F9538}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B28D5338-5C08-4AC8-A8C5-2784591F9538}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B28D5338-5C08-4AC8-A8C5-2784591F9538}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B28D5338-5C08-4AC8-A8C5-2784591F9538}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

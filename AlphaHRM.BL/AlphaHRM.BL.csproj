@@ -15,7 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AlphaHRS.Intereface\AlphaHRM.Intereface.csproj" />
+    <ProjectReference Include="..\AlphaHRM.DAL.EF\AlphaHRM.DAL.EF.csproj" />
+    <ProjectReference Include="..\AlphaHRM.Intereface\AlphaHRM.Intereface.csproj" />
+    <ProjectReference Include="..\AlphaHRM.Mapper\AlphaHRM.Mapper.csproj" />
   </ItemGroup>
 
 </Project>

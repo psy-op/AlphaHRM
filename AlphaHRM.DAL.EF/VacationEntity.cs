@@ -17,8 +17,9 @@ namespace AlphaHRM.DAL.EF
         public string? Note { get; set; }
         public bool IsDraft { get; set; }
         public DateTime Created { get; set; }
-        [ForeignKey("Users")]
+        [ForeignKey("User")]
         public Guid UserID { get; set; }
+        public virtual UserEntity User { get; set; }
 
     }
 }

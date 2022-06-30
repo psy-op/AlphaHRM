@@ -8,10 +8,8 @@ namespace AlphaHRM.DAL
 {
     public class EFContext : DbContext
     {
-        public EFContext()
-        {
+        public EFContext(){}
 
-        }
         public EFContext(DbContextOptions<EFContext> options) : base(options) { }
 
         public DbSet<UserEntity> User { get; set; }

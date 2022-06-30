@@ -9,14 +9,14 @@ namespace AlphaHRM.Models
 {
     public class VacationDTO
     {
-        public Guid ID { get; }
-        public int Type { get; }
-        public int Duration { get; }
-        public DateTime Date { get;  }
-        public int Status { get; }
-        public string? Note { get;  }
-        public bool IsDraft { get; }
+        public Guid ID { get; set; }
+        public int Type { get; set; }
+        public int Duration { get; set; }
+        public DateTime Date { get; set; }
+        public int Status { get; set; }
+        public string? Note { get; set; }
+        public bool IsDraft { get; set; }
         [ForeignKey("UsersDTO")]
-        public Guid UserID { get; }
+        public Guid UserID { get; set; }
     }
 }
