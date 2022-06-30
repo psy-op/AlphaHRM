@@ -1,6 +1,6 @@
-using AlphaHRS.BL;
-using AlphaHRS.DAL;
-using AlphaHRS.Intereface;
+using AlphaHRM.BL;
+using AlphaHRM.DAL;
+using AlphaHRM.Intereface;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -13,7 +13,7 @@ builder.Services.AddControllers();
 builder.Services.AddControllersWithViews();
 builder.Services.AddSession();
 builder.Services.AddDbContext<EFContext>(options =>
-    options.UseSqlServer(@""));
+    options.UseSqlServer(@"Data Source=DESKTOP-OROOU30;Initial Catalog=HRM;Integrated Security=True"));
 builder.Services.AddTransient<IVacationManager, VacationSQLManager>();
 builder.Services.AddTransient<IUserManager, UserSQLManager>();
 

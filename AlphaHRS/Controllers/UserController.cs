@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AlphaHRS.Controllers
+namespace AlphaHRM.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

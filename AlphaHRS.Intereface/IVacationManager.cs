@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AlphaHRS.Intereface
+namespace AlphaHRM.Intereface
 {
     public interface IVacationManager
     {
