@@ -1,7 +1,8 @@
 ﻿using AlphaHRM.DAL;
 using AlphaHRM.Intereface;
 using AlphaHRM.Models;
-using LMS.Mapping;
+using AlphaHRM.Utilities;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,80 +13,97 @@ namespace AlphaHRM.BL
 {
     public class VacationSQLManager : IVacationManager
     {
-        ClassMapper mapper;
-        private EFContext dbcontext;
-        public VacationSQLManager(EFContext _context, ClassMapper _mapper)
+        readonly ILogger<VacationSQLManager> logger;
+        readonly Mapper mapper;
+        readonly private EFContext dbcontext;
+        public VacationSQLManager(EFContext dbcontext, Mapper mapper, ILogger<VacationSQLManager> logger)
         {
-            dbcontext = _context;
-            mapper = _mapper;
+            this.dbcontext = dbcontext;
+            this.mapper = mapper;
+            this.logger = logger;
         }
-        public VacationDTO Create(VacationDTO vacation)
+        public async Task<Response<VacationDTO>> Create(VacationDTO vacation)
         {
             try
             {
                 dbcontext.Vacation.Add(mapper.Map(vacation));
-                dbcontext.SaveChanges();
-                return vacation;
+                await dbcontext.SaveChangesAsync();
+                return new Response<VacationDTO>(vacation);
             }
             catch (Exception ex)
             {
-                return null;
+                logger.LogCritical(ex, "Error at Create/VacationSQLManager");
+                return new Response<VacationDTO>(Enums.ErrorCodes.Unexpected, "Unexpected error.");
+
             }
         }
-        public VacationDTO Retrive(Guid id)
+        public async Task<Response<VacationDTO>> GetVacation(Guid id)
         {
             try
             {
                 var vacationentity = dbcontext.Vacation.FirstOrDefault(vacation => vacation.ID == id);
-                if (vacationentity == null) { return null; }
-                else { return mapper.Map(vacationentity); }
+                if (vacationentity == null) { return new Response<VacationDTO>(Enums.ErrorCodes.VacationNotFound, "Vacation not found."); }
+                else { return new Response<VacationDTO>(mapper.Map(vacationentity)); }
             }
             catch (Exception ex)
             {
-                return null;
+                logger.LogCritical(ex, "Error at GetVacation/VacationSQLManager");
+                return new Response<VacationDTO>(Enums.ErrorCodes.Unexpected, "Unexpected error.");
+
             }
         }
-        public VacationDTO Update(VacationDTO vacation)
+        public async Task<Response<VacationDTO>> Update(VacationDTO vacation)
         {
             try
             {
                 var vacationentity = dbcontext.Vacation.FirstOrDefault(xvacation => xvacation.ID == vacation.ID);
-                if (vacationentity == null) { return null; }
+                if (vacationentity == null) { return new Response<VacationDTO>(Enums.ErrorCodes.VacationNotFound, "Vacation not found."); }
                 else
                 {
-                    dbcontext.SaveChanges();
+                    await dbcontext.SaveChangesAsync();
                 }
-                return vacation;
+                return new Response<VacationDTO>(vacation);
             }
             catch (Exception ex)
             {
-                return null;
+                logger.LogCritical(ex, "Error at Update/VacationSQLManager");
+                return new Response<VacationDTO>(Enums.ErrorCodes.Unexpected, "Unexpected error.");
             }
         }
-        public void Delete(Guid id)
+        public async Task<Response<VacationDTO>> Delete(Guid id)
         {
             try
             {
                 var vacationentity = dbcontext.Vacation.FirstOrDefault(vacation => vacation.ID == id);
-                if (vacationentity == null) { return; }
+                if (vacationentity == null) { return new Response<VacationDTO>(Enums.ErrorCodes.VacationNotFound, "Vacation not found."); }
                 else { dbcontext.Vacation.Remove(vacationentity); }
-                dbcontext.SaveChanges();
+                await dbcontext.SaveChangesAsync();
+                return new Response<VacationDTO>(Enums.ErrorCodes.Success, "Success");
             }
             catch (Exception ex)
             {
-                return;
+                logger.LogCritical(ex, "Error at Delete/VacationSQLManager");
+                return new Response<VacationDTO>(Enums.ErrorCodes.Unexpected, "Unexpected error.");
             }
         }
-        public List<VacationDTO> GetAll()
+        public async Task<Response<List<VacationDTO>>> GetAllVacations()
         {
-            List<VacationDTO> vacationlist = new List<VacationDTO>();
-            var vacations = dbcontext.Vacation.ToList();
-            foreach(var vacy in vacations)
+            try
             {
-                vacationlist.Add(mapper.Map(vacy));
-            }
+                List<VacationDTO> vacationlist = new List<VacationDTO>();
+                var vacations = dbcontext.Vacation.ToList();
+                foreach (var vacy in vacations)
+                {
+                    vacationlist.Add(mapper.Map(vacy));
+                }
 
-            return vacationlist;
+                return new Response<List<VacationDTO>>(vacationlist);
+            }
+            catch(Exception ex)
+            {
+                logger.LogCritical(ex, "Error at GetAllVacations/VacationSQLManager");
+                return new Response<List<VacationDTO>>(Enums.ErrorCodes.Unexpected, "Unexpected error.");
+            }
         }
     }
 }

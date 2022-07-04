@@ -9,11 +9,13 @@ namespace AlphaHRM.Intereface
 {
     public interface IUserManager
     {
-        public UserDTO Create(UserDTO user);
-        public UserDTO Retrive(Guid id);
-        public UserDTO Update(UserDTO user);
-        public void Delete(Guid id);
-        public List<UserDTO> GetAll();
+        public Response<UserDTO> Create(UserDTO user);
+        public Task<Response<UserDTO>> GetUser(Guid id);
+        public Task<Response<UserDTO>> Update(UserDTO user);
+        public Task<Response<UserDTO>> Delete(Guid id);
+        public Task<Response<List<UserDTO>>> GetAllUsers();
+        public Task<Response<UserDTO>> Login(Guid id, string pass);
+        public Task<Response<List<UserDTO>>> Paging(int size, int page);
 
     }
 }

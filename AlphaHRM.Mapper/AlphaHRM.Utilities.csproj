@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\AlphaHRM.DAL.EF\AlphaHRM.DAL.EF.csproj" />
     <ProjectReference Include="..\AlphaHRM.Models\AlphaHRM.Models.csproj" />
   </ItemGroup>

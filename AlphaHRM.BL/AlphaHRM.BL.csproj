@@ -12,12 +12,13 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.6" />
+    <PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\AlphaHRM.DAL.EF\AlphaHRM.DAL.EF.csproj" />
     <ProjectReference Include="..\AlphaHRM.Intereface\AlphaHRM.Intereface.csproj" />
-    <ProjectReference Include="..\AlphaHRM.Mapper\AlphaHRM.Mapper.csproj" />
+    <ProjectReference Include="..\AlphaHRM.Mapper\AlphaHRM.Utilities.csproj" />
   </ItemGroup>
 
 </Project>
