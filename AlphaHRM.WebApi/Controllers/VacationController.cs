@@ -1,11 +1,13 @@
 ﻿using AlphaHRM.Intereface;
 using AlphaHRM.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 
 namespace AlphaHRM.Controllers
 {
+    [Authorize]
     [Route("api/[controller]/[action]")]
     [ApiController]
     public class VacationController : ControllerBase
@@ -20,85 +22,83 @@ namespace AlphaHRM.Controllers
 
 
         [HttpPost]
-        public IActionResult Add(VacationDTO vacy)
+        public async Task<IActionResult> Add([FromBody] VacationDTO vacy)
         {
             try
             {
-                var vc = vacationservice.Create(vacy);
+                var vc = await vacationservice.Create(vacy);
                 return Ok(vc);
             }
             catch (Exception ex)
             {
                 logger.LogCritical(ex,"Error at Add/VacationController");
-                return BadRequest(ex.Message);
+                return BadRequest(new Response<UserDTO>(Enums.ErrorCodes.ServerError, "Error trying to reach/access server."));
             }
         }
 
 
         [HttpGet]
-        public IActionResult Get(Guid id)
+        public async Task<IActionResult> Get([FromBody] Guid id)
         {
             try
             {
-                var vc = vacationservice.GetVacation(id);
+                var vc = await vacationservice.GetVacation(id);
                 return Ok(vc);
             }
             catch (Exception ex)
             {
                 logger.LogCritical(ex, "Error at Get/VacationController");
-                return BadRequest(ex.Message);
+                return BadRequest(new Response<UserDTO>(Enums.ErrorCodes.ServerError, "Error trying to reach/access server."));
             }
         }
 
 
         [HttpPut]
-        public IActionResult Update(VacationDTO vacy)
+        public async Task<IActionResult> Update([FromBody] VacationDTO vacy)
         {
             try
             {
-                var vc = vacationservice.Update(vacy);
+                var vc = await vacationservice.Update(vacy);
                 return Ok(vc);
             }
             catch (Exception ex)
             {
                 logger.LogCritical(ex, "Error at Update/VacationController");
-                return BadRequest(ex.Message);
+                return BadRequest(new Response<UserDTO>(Enums.ErrorCodes.ServerError, "Error trying to reach/access server."));
             }
         }
 
 
         [HttpDelete]
-        public IActionResult Delete(Guid id)
+        public async Task<IActionResult> Delete([FromBody] Guid id)
         {
             try
             {
-                var vc = vacationservice.Delete(id);
+                var vc = await vacationservice.Delete(id);
                 return Ok(vc);
 
             }
             catch (Exception ex)
             {
                 logger.LogCritical(ex, "Error at Delete/VacationController");
-                return BadRequest(ex.Message);
+                return BadRequest(new Response<UserDTO>(Enums.ErrorCodes.ServerError, "Error trying to reach/access server."));
             }
         }
 
-        [HttpGet]
-        public IActionResult Getall()
+        [HttpPost]
+        public async Task<IActionResult> Getall([FromBody] GetVacationRequest req)
         {
             try
             {
-                var vc = vacationservice.GetAllVacations();
+                var vc = await vacationservice.GetAllVacations(req);
                 return Ok(vc);
             }
             catch (Exception ex)
             {
                 logger.LogCritical(ex, "Error at GetAll/VacationController");
-                return BadRequest(ex.Message);
+                return BadRequest(new Response<UserDTO>(Enums.ErrorCodes.ServerError, "Error trying to reach/access server."));
             }
         }
-
-
 
     }
 }

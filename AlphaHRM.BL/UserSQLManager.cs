@@ -15,10 +15,10 @@ namespace AlphaHRM.BL
 {
     public class UserSQLManager : IUserManager
     {
-        readonly ILogger<UserSQLManager> logger;
-        readonly Mapper mapper;
-        readonly Hasher hasher;
-        readonly private EFContext dbcontext;
+        private readonly ILogger<UserSQLManager> logger;
+        private readonly Mapper mapper;
+        private readonly Hasher hasher;
+        private readonly EFContext dbcontext;
         public UserSQLManager(EFContext dbcontext, Mapper mapper, ILogger<UserSQLManager> logger, Hasher hasher)
         {
             this.dbcontext = dbcontext;
@@ -26,15 +26,24 @@ namespace AlphaHRM.BL
             this.logger = logger;
             this.hasher = hasher;
         }
-        public Response<UserDTO> Create(UserDTO user)
+        public async Task<Response<UserDTO>> Create(UserDTO user)
         {
             try
             {
-                user.ID = new Guid();
-                user.Password= hasher.Hash(user.Password);
-                dbcontext.User.Add(mapper.Map(user));
-                dbcontext.SaveChanges();
-                return new Response<UserDTO>(user);
+                var userentity =  dbcontext.User.FirstOrDefault(xuser => xuser.Email == user.Email);
+                if (userentity == null)
+                {
+                    user.ID = new Guid();
+                    user.Password = hasher.Hash(user.Password);
+                    dbcontext.User.Add(mapper.Map(user));
+                    await dbcontext.SaveChangesAsync();
+                    return new Response<UserDTO>(user);
+                }
+                else
+                {
+                    return new Response<UserDTO>(Enums.ErrorCodes.ExistingUser, "Existing User.");
+                }
+
             }
             catch (Exception ex)
             {
@@ -46,7 +55,7 @@ namespace AlphaHRM.BL
         {
             try
             {
-                var userentity = dbcontext.User.FirstOrDefault(user => user.ID == id);
+                var userentity =  dbcontext.User.FirstOrDefault(user => user.ID == id);
                 if (userentity == null) { return new Response<UserDTO>(Enums.ErrorCodes.UserNotFound, "User not found."); }
                 else { return new Response<UserDTO>(mapper.Map(userentity)); }
             }
@@ -60,7 +69,7 @@ namespace AlphaHRM.BL
         {
             try
             {
-                var userentity = dbcontext.User.FirstOrDefault(xuser => xuser.ID == user.ID);
+                var userentity = dbcontext.User.FirstOrDefault(xuser => xuser.Email == user.Email);
                 if (userentity == null) { return new Response<UserDTO>(Enums.ErrorCodes.UserNotFound, "User not found."); }
                 else
                 {
@@ -70,7 +79,7 @@ namespace AlphaHRM.BL
                     userentity.ManagerId = user.ManagerId;
                     userentity.Email = user.Email;
                     userentity.Phone = user.Phone;
-                    userentity.Type = user.Type;
+                    userentity.Type = (int)user.Type;
                     userentity.Password = hasher.Hash(user.Password);
                     await dbcontext.SaveChangesAsync();
                 }
@@ -99,77 +108,56 @@ namespace AlphaHRM.BL
             }
 
         }
-        public async Task<Response<List<UserDTO>>> GetAllUsers()
+        public async Task<PagedResponse<UserDTO>> GetAllUsers(GetUsersRequest page)
         {
             try
             {
-                List<UserDTO> userlist = new List<UserDTO>();
-                var users = dbcontext.User.ToList();
+                var users = dbcontext.User
+                    .Skip((page.PageNumber - 1) * page.PageSize)
+                    .Take(page.PageSize)
+                    .ToList();
+
+
+                List<UserDTO> userlist = new();
                 foreach (var user in users)
                 {
-                    userlist.Add(mapper.Map(user));
+                    if (user.ManagerId == null){ userlist.Add(mapper.Map(user)); }          
                 }
 
-                return new Response<List<UserDTO>>(userlist);
+                var totalCount = await dbcontext.User.CountAsync();
+                return new PagedResponse<UserDTO> (userlist, totalCount);
             }
             catch (Exception ex)
             {
                 logger.LogCritical(ex, "Error at GetAllUsers/UserSQLManager");
-                return new Response<List<UserDTO>>(Enums.ErrorCodes.Unexpected, "Unexpected error.");
+                return new PagedResponse<UserDTO>(Enums.ErrorCodes.Unexpected, "Unexpected error.");
             }
         }
 
 
-        public async Task<Response<UserDTO>> Login(Guid id, string pass)
+        public async Task<Response<UserDTO>> Login(LoginRequest req)
         {
             try
             {
-                var userentity = dbcontext.User.FirstOrDefault(user => user.ID == id);
+                var userentity = await dbcontext.User.FirstOrDefaultAsync(user => user.Email == req.Email);
                 if (userentity == null) { return new Response<UserDTO>(Enums.ErrorCodes.UserNotFound, "User not found."); }
                 else
                 {
-                    if (userentity.Password == hasher.Hash(pass) && userentity.Type)
+                    if (userentity.Password == hasher.Hash(req.Password))
                     {
-                        return new Response<UserDTO>(mapper.Map(userentity));//admin
+                        return new Response<UserDTO>(mapper.Map(userentity));
                     }
-                    else if(userentity.Password == hasher.Hash(pass) && !userentity.Type)
-                    {
-                        return new Response<UserDTO>(mapper.Map(userentity));//user
-                    }
+                   
+                return new Response<UserDTO>(Enums.ErrorCodes.InvalidLogin, "Invalid Login");
                 }
-                return new Response<UserDTO>(Enums.ErrorCodes.Unexpected, "Unexpected error.");
             }
             catch (Exception ex)
             {
-                logger.LogInformation(ex.ToString());
+                logger.LogCritical(ex, "Error at Login/UserSQLManager");
                 return new Response<UserDTO>(Enums.ErrorCodes.Unexpected, "Unexpected error.");
             }
 
         }
-
-        public async Task<Response<List<UserDTO>>> Paging(int size, int page)
-        {
-            try
-            {
-                List<UserDTO> userlist = new List<UserDTO>();
-                List<UserDTO> items = new List<UserDTO>();
-                var users = dbcontext.User.ToList();
-                foreach (var user in users)
-                {
-                    userlist.Add(mapper.Map(user));
-                }
-                var paging = new Paging(users.Count(), page, size);
-
-                items = userlist.Skip((page) * size).ToList();
-
-                return new Response<List<UserDTO>>(items);
-            }
-            catch (Exception ex)
-            {
-                logger.LogCritical(ex, "Error at GetAllUsers/UserSQLManager");
-                return new Response<List<UserDTO>>(Enums.ErrorCodes.Unexpected, "Unexpected error.");
-            }
-}
 
 
 

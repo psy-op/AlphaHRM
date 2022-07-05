@@ -1,9 +1,4 @@
 ﻿using AlphaHRM.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AlphaHRM.Intereface
 {
@@ -13,6 +8,6 @@ namespace AlphaHRM.Intereface
         public Task<Response<VacationDTO>> GetVacation(Guid id);
         public Task<Response<VacationDTO>> Update(VacationDTO vacation);
         public Task<Response<VacationDTO>> Delete(Guid id);
-        public Task<Response<List<VacationDTO>>> GetAllVacations();
+        public Task<PagedResponse<VacationDTO>> GetAllVacations(GetVacationRequest page);
     }
 }

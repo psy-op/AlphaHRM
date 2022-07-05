@@ -15,7 +15,6 @@ namespace AlphaHRM.DAL
         public DbSet<UserEntity> User { get; set; }
         public DbSet<VacationEntity> Vacation { get; set; }
 
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(@"Data Source=DESKTOP-OROOU30;Initial Catalog=HRM;Integrated Security=True");

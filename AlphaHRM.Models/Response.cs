@@ -9,16 +9,16 @@ namespace AlphaHRM.Models
 {
     public class Response<T>
     {
-        public List<VacationDTO> vacationlist { get; set; }
-        public List<UserDTO> userlist { get; set; }
+
 
         public T Data { get; set; }
-        public ErrorCodes Errocode { get; set; } = 0;
+        public ErrorCodes ErrorCode { get; set; } = 0;
         public string Description { get; set; }
+        public int TotalCount { get; set; }
 
 
-        public Response(ErrorCodes errocode, string description)        {
-            Errocode = errocode;
+        public Response(ErrorCodes errorcode, string description)        {
+            ErrorCode = errorcode;
             Description = description;
         }
 
@@ -26,13 +26,22 @@ namespace AlphaHRM.Models
             Data = data;
         }
 
-        public Response(List<UserDTO> data)
+
+    }
+
+    public class PagedResponse<T>: Response<List<T>>
+    {
+
+        public int TotalCount { get; set; }
+
+        public PagedResponse(ErrorCodes errorcode, string description) : base(errorcode, description)
         {
-            userlist = data;
         }
-        public Response(List<VacationDTO> data)
-        {
-            vacationlist = data;
+
+        public PagedResponse(List<T> data , int totalCount) : base(data)        {
+            TotalCount = totalCount;
         }
+
+
     }
 }

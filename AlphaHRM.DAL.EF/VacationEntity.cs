@@ -15,7 +15,7 @@ namespace AlphaHRM.DAL.EF
         public DateTime Date { get; set; }
         public int Status { get; set; }
         public string? Note { get; set; }
-        public bool IsDraft { get; set; }
+        public int IsDraft { get; set; }
         public DateTime Created { get; set; }
         [ForeignKey("User")]
         public Guid UserID { get; set; }

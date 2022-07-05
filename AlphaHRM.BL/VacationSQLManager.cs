@@ -2,6 +2,7 @@
 using AlphaHRM.Intereface;
 using AlphaHRM.Models;
 using AlphaHRM.Utilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -13,9 +14,9 @@ namespace AlphaHRM.BL
 {
     public class VacationSQLManager : IVacationManager
     {
-        readonly ILogger<VacationSQLManager> logger;
-        readonly Mapper mapper;
-        readonly private EFContext dbcontext;
+        private readonly ILogger<VacationSQLManager> logger;
+        private readonly Mapper mapper;
+        private readonly EFContext dbcontext;
         public VacationSQLManager(EFContext dbcontext, Mapper mapper, ILogger<VacationSQLManager> logger)
         {
             this.dbcontext = dbcontext;
@@ -56,10 +57,17 @@ namespace AlphaHRM.BL
         {
             try
             {
-                var vacationentity = dbcontext.Vacation.FirstOrDefault(xvacation => xvacation.ID == vacation.ID);
+                var vacationentity =  dbcontext.Vacation.FirstOrDefault(xvacation => xvacation.ID == vacation.ID);
                 if (vacationentity == null) { return new Response<VacationDTO>(Enums.ErrorCodes.VacationNotFound, "Vacation not found."); }
                 else
                 {
+                    vacationentity.Type = (int)vacation.Type;
+                    vacationentity.Duration = vacation.Duration;
+                    vacationentity.Date = vacation.Date;
+                    vacationentity.Status = (int)vacation.Status;
+                    vacationentity.Note = vacation.Note;
+                    vacationentity.IsDraft = (int)vacation.IsDraft;
+                    vacationentity.UserID = vacation.UserID;
                     await dbcontext.SaveChangesAsync();
                 }
                 return new Response<VacationDTO>(vacation);
@@ -86,23 +94,26 @@ namespace AlphaHRM.BL
                 return new Response<VacationDTO>(Enums.ErrorCodes.Unexpected, "Unexpected error.");
             }
         }
-        public async Task<Response<List<VacationDTO>>> GetAllVacations()
+        public async Task<PagedResponse<VacationDTO>> GetAllVacations(GetVacationRequest page)
         {
             try
             {
-                List<VacationDTO> vacationlist = new List<VacationDTO>();
-                var vacations = dbcontext.Vacation.ToList();
-                foreach (var vacy in vacations)
+                var vacys = dbcontext.Vacation
+                    .Skip((page.PageNumber - 1) * page.PageSize)
+                    .Take(page.PageSize)
+                    .ToList();
+                List<VacationDTO> vacylist = new();              
+                foreach (var vacy in vacys)
                 {
-                    vacationlist.Add(mapper.Map(vacy));
+                    vacylist.Add(mapper.Map(vacy));
                 }
-
-                return new Response<List<VacationDTO>>(vacationlist);
+                var totalCount = await dbcontext.Vacation.CountAsync();
+                return new PagedResponse<VacationDTO>(vacylist, totalCount);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                logger.LogCritical(ex, "Error at GetAllVacations/VacationSQLManager");
-                return new Response<List<VacationDTO>>(Enums.ErrorCodes.Unexpected, "Unexpected error.");
+                logger.LogCritical(ex, "Error at GetAllUsers/UserSQLManager");
+                return new PagedResponse<VacationDTO>(Enums.ErrorCodes.Unexpected, "Unexpected error.");
             }
         }
     }

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AlphaHRM.Models
+﻿namespace AlphaHRM.Models
 {
     public class Enums
     {
@@ -13,22 +7,26 @@ namespace AlphaHRM.Models
             Success = 0,
             UserNotFound = 10,
             VacationNotFound = 20,
-            Unexpected = 30
+            Unexpected = 30,
+            InvalidLogin = 40,
+            ExistingUser = 50,
+            ServerError = 60,
         }
 
 
-        public class UserType
+        public enum UserType
         {
-            public const bool Manager = true;
-            public const bool User = false;
+            User = 0,
+            Manager = 1,
+
         }
 
         public enum VacationType
         {
             AnnualVacation = 0,
-            SickVacation=1,
-            LeaveVacation=2,
-            Exceptional=3
+            SickVacation = 1,
+            LeaveVacation = 2,
+            Exceptional = 3
         }
 
         public enum VacationStatus
@@ -38,10 +36,10 @@ namespace AlphaHRM.Models
             Rejected = 2
         }
 
-        public class isDraft
+        public enum Drafted
         {
-            public const bool Draft = true;
-            public const bool Submitted = false;
+            Draft = 0,
+            Submitted = 1
         }
     }
 }

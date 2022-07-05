@@ -1,11 +1,13 @@
 ﻿using AlphaHRM.Intereface;
 using AlphaHRM.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
+using static AlphaHRM.Models.Enums;
 
 namespace AlphaHRM.Controllers
 {
+    [Authorize]
     [Route("api/[controller]/[action]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -19,116 +21,97 @@ namespace AlphaHRM.Controllers
         }
 
         [HttpPost]
-        public IActionResult Login(Guid id, string pass)
+        public async Task<IActionResult> Login([FromBody] LoginRequest req)
         {
             try
             {
-                var us = userservice.Login(id,pass);
+                var us = await userservice.Login(req);
                 return Ok(us);
             }
             catch (Exception ex)
             {
                 logger.LogCritical(ex, "Error at Login/UserController");
-                return BadRequest(ex.Message);
+                return BadRequest(new Response<UserDTO>(Enums.ErrorCodes.ServerError, "Error trying to reach/access server."));
             }
         }
 
         [HttpPost]
-        public IActionResult Add(UserDTO user)
+        public async Task<IActionResult> Add([FromBody] UserDTO user)
         {
             try
-            {
-                var us=userservice.Create(user);
+            { 
+                var us= await userservice.Create(user);
                 return Ok(us);
             }
             catch(Exception ex)
             {
                 logger.LogCritical(ex, "Error at Add/UserController");
-                return BadRequest(ex.Message);
+                return BadRequest(new Response<UserDTO>(Enums.ErrorCodes.ServerError, "Error trying to reach/access server."));
             }
         }
-
+        
 
         [HttpGet]
-        public IActionResult Get(Guid id)
+        public async Task<IActionResult> Get([FromBody] Guid id)
         {
             try
             {
-                var us = userservice.GetUser(id);
+                var us = await userservice.GetUser(id);
                 return Ok(us);
             }
             catch (Exception ex)
             {
                 logger.LogCritical(ex, "Error at Get/UserController");
-                return BadRequest(ex.Message);
+                return BadRequest(new Response<UserDTO>(Enums.ErrorCodes.ServerError,"Error trying to reach/access server." ));
             }
         }
 
 
         [HttpPut]
-        public IActionResult Update(UserDTO user)
+        public async Task<IActionResult> Update([FromBody] UserDTO user)
         {
             try
             {
-                var us = userservice.Update(user);
+                var us = await userservice.Update(user);
                 return Ok(us);
             }
             catch (Exception ex)
             {
                 logger.LogCritical(ex, "Error at Update/UserController");
-                return BadRequest(ex.Message);
+                return BadRequest(new Response<UserDTO>(Enums.ErrorCodes.ServerError, "Error trying to reach/access server."));
             }
         }
 
 
         [HttpDelete]
-        public IActionResult Delete(Guid id)
+        public async Task<IActionResult> Delete([FromBody] Guid id)
         {
             try
             {
-                var us =userservice.Delete(id);
+                var us = await userservice.Delete(id);
                 return Ok(us);
 
             }
             catch (Exception ex)
             {
                 logger.LogCritical(ex, "Error at Delete/UserController");
-                return BadRequest(ex.Message);
+                return BadRequest(new Response<UserDTO>(Enums.ErrorCodes.ServerError, "Error trying to reach/access server."));
             }
         }
 
-        [HttpGet]
-        public IActionResult Getall()
+        [HttpPost]
+        public async Task<IActionResult> Getall([FromBody] GetUsersRequest req)
         {
             try
             {
-                var us = userservice.GetAllUsers();
+                var us = await userservice.GetAllUsers(req);
                 return Ok(us);
             }
             catch (Exception ex)
             {
                 logger.LogCritical(ex, "Error at GetAll/UserController");
-                return BadRequest(ex.Message);
+                return BadRequest(new Response<UserDTO>(Enums.ErrorCodes.ServerError, "Error trying to reach/access server."));
             }
         }
-
-        [HttpGet]
-        public IActionResult Page(int size, int page)
-        {
-            try
-            {
-                var us = userservice.Paging(size,page);
-                return Ok(us);
-            }
-            catch (Exception ex)
-            {
-                logger.LogCritical(ex, "Error at Page/UserController");
-                return BadRequest(ex.Message);
-            }
-        }
-
-
-
-
     }
 }

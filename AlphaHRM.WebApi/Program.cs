@@ -1,9 +1,14 @@
+using AlphaHRM.Authentication;
 using AlphaHRM.BL;
 using AlphaHRM.DAL;
 using AlphaHRM.Intereface;
 using AlphaHRM.Utilities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +23,9 @@ builder.Services.AddTransient<IVacationManager, VacationSQLManager>();
 builder.Services.AddTransient<IUserManager, UserSQLManager>();
 builder.Services.AddTransient<Mapper>();
 builder.Services.AddTransient<Hasher>();
+//
 
+//
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

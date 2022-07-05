@@ -19,7 +19,7 @@ namespace AlphaHRM.Utilities
                 Password = user.Password,
                 Job = user.Job,
                 Phone = user.Phone,
-                Type = user.Type,
+                Type = (Enums.UserType)user.Type,
                 ID = user.ID,
                 ManagerId = user.ManagerId
 
@@ -36,7 +36,7 @@ namespace AlphaHRM.Utilities
                 Password = user.Password,
                 Job = user.Job,
                 Phone = user.Phone,
-                Type = user.Type,
+                Type = (int)user.Type,
                 ID = user.ID,
                 ManagerId = user.ManagerId,
                 Created = DateTime.Now
@@ -51,12 +51,12 @@ namespace AlphaHRM.Utilities
             var temp = new VacationDTO
             {
                 ID = vacation.ID,
-                Type = vacation.Type,
+                Type = (Enums.VacationType)vacation.Type,
                 Duration = vacation.Duration,
                 Date = vacation.Date,
-                Status = vacation.Status,
+                Status = (Enums.VacationStatus)vacation.Status,
                 Note = vacation.Note,
-                IsDraft = vacation.IsDraft,
+                IsDraft = (Enums.Drafted)vacation.IsDraft,
                 UserID = vacation.UserID
             };
             return temp;
@@ -67,12 +67,12 @@ namespace AlphaHRM.Utilities
             var temp = new VacationEntity
             {
                 ID = vacation.ID,
-                Type = vacation.Type,
+                Type = (int)vacation.Type,
                 Duration = vacation.Duration,
                 Date = vacation.Date,
-                Status = vacation.Status,
+                Status = (int)vacation.Status,
                 Note = vacation.Note,
-                IsDraft = vacation.IsDraft,
+                IsDraft = (int)vacation.IsDraft,
                 UserID = vacation.UserID,
                 Created = DateTime.Now,
         };

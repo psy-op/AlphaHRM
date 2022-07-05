@@ -4,6 +4,7 @@ using AlphaHRM.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AlphaHRM.DAL.EF.Migrations
 {
     [DbContext(typeof(EFContext))]
-    partial class EFContextModelSnapshot : ModelSnapshot
+    [Migration("20220705080040_FixingUserType")]
+    partial class FixingUserType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -76,8 +78,8 @@ namespace AlphaHRM.DAL.EF.Migrations
                     b.Property<int>("Duration")
                         .HasColumnType("int");
 
-                    b.Property<int>("IsDraft")
-                        .HasColumnType("int");
+                    b.Property<bool>("IsDraft")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");

@@ -13,7 +13,7 @@ namespace AlphaHRM.DAL.EF
         public int Phone { get; set; }
         public string Email { get; set; }
         public string Job { get; set; }
-        public bool Type { get; set; }
+        public int Type { get; set; }
         public DateTime Created { get; set; }
         public string Password { get; set; }
         public Guid? ManagerId { get; set; }
