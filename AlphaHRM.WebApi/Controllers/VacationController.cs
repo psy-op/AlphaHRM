@@ -21,7 +21,7 @@ namespace AlphaHRM.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost, AllowAnonymous]
         public async Task<IActionResult> Add([FromBody] VacationDTO vacy)
         {
             try
@@ -37,7 +37,7 @@ namespace AlphaHRM.Controllers
         }
 
 
-        [HttpGet]
+        [HttpPost, AllowAnonymous]
         public async Task<IActionResult> Get([FromBody] Guid id)
         {
             try
@@ -53,8 +53,8 @@ namespace AlphaHRM.Controllers
         }
 
 
-        [HttpPut]
-        public async Task<IActionResult> Update([FromBody] VacationDTO vacy)
+        [HttpPut,Authorize(Roles = "Manager")]
+        public async Task<IActionResult> Update([FromBody] VacationUpdate vacy)
         {
             try
             {
@@ -69,7 +69,7 @@ namespace AlphaHRM.Controllers
         }
 
 
-        [HttpDelete]
+        [HttpDelete, Authorize(Roles = "Manager")]
         public async Task<IActionResult> Delete([FromBody] Guid id)
         {
             try
@@ -85,7 +85,7 @@ namespace AlphaHRM.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "Manager")]
         public async Task<IActionResult> Getall([FromBody] GetVacationRequest req)
         {
             try

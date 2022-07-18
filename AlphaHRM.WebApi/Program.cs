@@ -2,6 +2,7 @@
 using AlphaHRM.BL;
 using AlphaHRM.DAL;
 using AlphaHRM.Intereface;
+using AlphaHRM.Models;
 using AlphaHRM.Utilities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -15,28 +16,33 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 
-builder.Services.AddAuthentication(x =>
+// For Identity  
+builder.Services.AddIdentity<AppUser, IdentityRole>()
+    .AddEntityFrameworkStores<EFContext>()
+    .AddDefaultTokenProviders();
+
+// Adding Authentication  
+builder.Services.AddAuthentication(options =>
 {
-	x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-	x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(o =>
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+
+// Adding Jwt Bearer  
+.AddJwtBearer(options =>
 {
-	var Key = Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]);
-	o.SaveToken = true;
-	o.TokenValidationParameters = new TokenValidationParameters
-	{
-		ValidateIssuer = false,
-		ValidateAudience = false,
-		ValidateLifetime = true,
-		ValidateIssuerSigningKey = true,
-		ValidIssuer = builder.Configuration["JWT:Issuer"],
-		ValidAudience = builder.Configuration["JWT:Audience"],
-		IssuerSigningKey = new SymmetricSecurityKey(Key)
-	};
+    options.SaveToken = true;
+    options.RequireHttpsMetadata = false;
+    options.TokenValidationParameters = new TokenValidationParameters()
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["JWT:ValidAudience"],
+        ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
+    };
 });
-
-builder.Services.AddSingleton<IJWTManagerRepository, JWTManagerRepository>();
-
 
 
 
@@ -45,10 +51,10 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSession();
 builder.Services.AddDbContext<EFContext>(options =>
     options.UseSqlServer(@"Data Source=DESKTOP-OROOU30;Initial Catalog=HRM;Integrated Security=True"));
-builder.Services.AddTransient<IVacationManager, VacationSQLManager>();
-builder.Services.AddTransient<IUserManager, UserSQLManager>();
-builder.Services.AddTransient<Mapper>();
-builder.Services.AddTransient<Hasher>();
+builder.Services.AddScoped<IVacationManager, VacationSQLManager>();
+builder.Services.AddScoped<IUserManager, UserSQLManager>();
+builder.Services.AddScoped<Mapper>();
+builder.Services.AddScoped<Hasher>();
 
 
 //
@@ -75,15 +81,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.Use(async (context, next) =>
-{
-    var token = context.Session.GetString("Token");
-    if (!string.IsNullOrEmpty(token))
-    {
-        context.Request.Headers.Add("Authorization", "Bearer " + token);
-    }
-    await next();
-});
 
 app.UseHttpsRedirection();
 
