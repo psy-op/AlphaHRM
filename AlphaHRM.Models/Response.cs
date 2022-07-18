@@ -17,19 +17,21 @@ namespace AlphaHRM.Models
         public int TotalCount { get; set; }
 
 
-        public Response(ErrorCodes errorcode, string description)        {
+        public Response(ErrorCodes errorcode, string description)
+        {
             ErrorCode = errorcode;
             Description = description;
         }
 
-        public Response(T data)        {
+        public Response(T data)
+        {
             Data = data;
         }
 
 
     }
 
-    public class PagedResponse<T>: Response<List<T>>
+    public class PagedResponse<T> : Response<List<T>>
     {
 
         public int TotalCount { get; set; }
@@ -38,10 +40,13 @@ namespace AlphaHRM.Models
         {
         }
 
-        public PagedResponse(List<T> data , int totalCount) : base(data)        {
+        public PagedResponse(List<T> data, int totalCount) : base(data)
+        {
             TotalCount = totalCount;
         }
 
 
     }
+
 }
+    
