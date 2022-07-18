@@ -3,7 +3,6 @@ using AlphaHRM.Intereface;
 using AlphaHRM.Models;
 using AlphaHRM.Utilities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -23,15 +22,13 @@ namespace AlphaHRM.BL
         private readonly Mapper mapper;
         private readonly Hasher hasher;
         private readonly EFContext dbcontext;
-        private readonly IConfiguration config;
 
-        public UserSQLManager(EFContext dbcontext, Mapper mapper, ILogger<UserSQLManager> logger, Hasher hasher, IConfiguration config)
+        public UserSQLManager(EFContext dbcontext, Mapper mapper, ILogger<UserSQLManager> logger, Hasher hasher)
         {
             this.dbcontext = dbcontext;
             this.mapper = mapper;
             this.logger = logger;
             this.hasher = hasher;
-            this.config = config;
         }
         public async Task<Response<UserDTO>> Create(UserDTO user)
         {
@@ -72,12 +69,12 @@ namespace AlphaHRM.BL
                 return new Response<UserDTO>(Enums.ErrorCodes.Unexpected, "Unexpected error.");
             }
         }
-        public async Task<Response<UserUpdate>> Update(UserUpdate user)
+        public async Task<Response<UserDTO>> Update(UserDTO user)
         {
             try
             {
                 var userentity = dbcontext.User.FirstOrDefault(xuser => xuser.Email == user.Email);
-                if (userentity == null) { return new Response<UserUpdate>(Enums.ErrorCodes.UserNotFound, "User not found."); }
+                if (userentity == null) { return new Response<UserDTO>(Enums.ErrorCodes.UserNotFound, "User not found."); }
                 else
                 {
                     //userentity = mapper.Map(user);
@@ -85,16 +82,18 @@ namespace AlphaHRM.BL
                     userentity.Job = user.Job;
                     userentity.ManagerId = user.ManagerId;
                     userentity.Email = user.Email;
-                    userentity.Phone = user.Phone;                   
+                    userentity.Phone = user.Phone;
+                    userentity.Type = (int)user.Type;
+                    userentity.Password = hasher.Hash(user.Password);
                     await dbcontext.SaveChangesAsync();
-                    return new Response<UserUpdate>(user);
+                    return new Response<UserDTO>(user);
 
                 }
             }
             catch (Exception ex)
             {
                 logger.LogCritical(ex, "Error at Update/UserSQLManager");
-                return new Response<UserUpdate>(Enums.ErrorCodes.Unexpected, "Unexpected error.");
+                return new Response<UserDTO>(Enums.ErrorCodes.Unexpected, "Unexpected error.");
             }
         }
         public async Task<Response<UserDTO>> Delete(Guid id)
@@ -150,32 +149,22 @@ namespace AlphaHRM.BL
                 else
                 {
                     if (userentity.Password == hasher.Hash(req.Password))
-                    {                      
-                        var authClaims = new List<Claim>
-                        {
-                            new Claim(ClaimTypes.Name, req.Email),
-                            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                        };
-
-                        //authClaims.Add(new Claim(ClaimTypes.Role, userentity.Type == (int) Enums.UserType.Manager?"Manager":"User"));         
-                          authClaims.Add(new Claim(ClaimTypes.Role, ((Enums.UserType)userentity.Type).ToString()));                    
-
-                        var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JWT:Secret"]));
-
-                        var token = new JwtSecurityToken(
-                        issuer: config["JWT:ValidIssuer"],
-                        audience: config["JWT:ValidAudience"],
-                        expires: DateTime.Now.AddHours(3),
-                        claims: authClaims,
-                        signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
-                        );
-                        return new Response<string>(new JwtSecurityTokenHandler().WriteToken(token));
-                            
+                    {
+                        var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("svtKFemneXZEdWfDAIzgwVSSl0oxdyYzKRMsYXu7"));
+                        var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
+                        var tokeOptions = new JwtSecurityToken(
+                            issuer: "https://localhost:7143/",
+                            audience: "https://localhost:7143/",
+                            claims: new List<Claim>(),
+                            expires: DateTime.Now.AddMinutes(50),
+                            signingCredentials: signinCredentials);
+                        var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
+          
+                        return new Response<string>(tokenString);
                     }
-                    return new Response<string>(Enums.ErrorCodes.InvalidLogin, "Invalid Login");
+                   
+                return new Response<string>(Enums.ErrorCodes.InvalidLogin, "Invalid Login");
                 }
-
-
             }
             catch (Exception ex)
             {

@@ -20,13 +20,19 @@ namespace AlphaHRM.Controllers
             this.logger = logger;
         }
 
-        [HttpPost, AllowAnonymous]
+        [HttpPost]
         public async Task<IActionResult> Login([FromBody] LoginRequest req)
         {
             try
             {
-                var us = await userservice.Login(req);
-                return Ok(us);
+                //var us = await userservice.Login(req);
+                //return Ok(us);
+                var token = await TokenManager.Authenticate(req);
+                if (token == null)
+                {
+                    return Unauthorized();
+                }
+                return Ok(token);
             }
             catch (Exception ex)
             {
@@ -35,23 +41,23 @@ namespace AlphaHRM.Controllers
             }
         }
 
-        [HttpPost, Authorize(Roles = "Manager")]
+        [HttpPost]
         public async Task<IActionResult> Add([FromBody] UserDTO user)
         {
             try
-            {
-                var us = await userservice.Create(user);
+            { 
+                var us= await userservice.Create(user);
                 return Ok(us);
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 logger.LogCritical(ex, "Error at Add/UserController");
                 return BadRequest(new Response<UserDTO>(Enums.ErrorCodes.ServerError, "Error trying to reach/access server."));
             }
         }
+        
 
-
-        [HttpPost, AllowAnonymous]
+        [HttpGet, Authorize]
         public async Task<IActionResult> Get([FromBody] Guid id)
         {
             try
@@ -62,13 +68,13 @@ namespace AlphaHRM.Controllers
             catch (Exception ex)
             {
                 logger.LogCritical(ex, "Error at Get/UserController");
-                return BadRequest(new Response<UserDTO>(Enums.ErrorCodes.ServerError, "Error trying to reach/access server."));
+                return BadRequest(new Response<UserDTO>(Enums.ErrorCodes.ServerError,"Error trying to reach/access server." ));
             }
         }
 
 
-        [HttpPut, Authorize(Roles = "Manager")]
-        public async Task<IActionResult> Update([FromBody] UserUpdate user)
+        [HttpPut, Authorize]
+        public async Task<IActionResult> Update([FromBody] UserDTO user)
         {
             try
             {
@@ -83,7 +89,7 @@ namespace AlphaHRM.Controllers
         }
 
 
-        [HttpDelete, Authorize(Roles = "Manager")]
+        [HttpDelete, Authorize]
         public async Task<IActionResult> Delete([FromBody] Guid id)
         {
             try
@@ -99,7 +105,7 @@ namespace AlphaHRM.Controllers
             }
         }
 
-        [HttpPost, Authorize(Roles = "Manager")]
+        [HttpPost]
         public async Task<IActionResult> Getall([FromBody] GetUsersRequest req)
         {
             try

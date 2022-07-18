@@ -16,12 +16,12 @@ namespace AlphaHRM.Models
 
     public class GetUsersRequest:PagingRequest
     {
-        public Guid ManagerId { get; set; }
+        public int ManagerId { get; set; }
     }
 
     public class GetVacationRequest : PagingRequest
     {
-        public Guid UserId { get; set; }
+        public int UserId { get; set; }
     }
 
 }

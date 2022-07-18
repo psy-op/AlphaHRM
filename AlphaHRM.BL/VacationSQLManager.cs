@@ -27,10 +27,10 @@ namespace AlphaHRM.BL
         {
             try
             {
-                var user = dbcontext.User.FirstOrDefault(xvacation => xvacation.ID == vacation.UserID);
-                if (user == null) { return new Response<VacationDTO>(Enums.ErrorCodes.UserNotFound, "User not found ."); }
+                var vacationentity = dbcontext.Vacation.FirstOrDefault(xvacation => xvacation.UserID == vacation.UserID);
+                if (vacationentity == null) { return new Response<VacationDTO>(Enums.ErrorCodes.UserNotFound, "User not found ."); }
                 else {
-                    user.VacationCount++;
+                    vacationentity.User.VacationCount++;
                     dbcontext.Vacation.Add(mapper.Map(vacation));
                     await dbcontext.SaveChangesAsync();
                     return new Response<VacationDTO>(vacation);
@@ -59,12 +59,12 @@ namespace AlphaHRM.BL
 
             }
         }
-        public async Task<Response<VacationUpdate>> Update(VacationUpdate vacation)
+        public async Task<Response<VacationDTO>> Update(VacationDTO vacation)
         {
             try
             {
                 var vacationentity =  dbcontext.Vacation.FirstOrDefault(xvacation => xvacation.ID == vacation.ID);
-                if (vacationentity == null) { return new Response<VacationUpdate>(Enums.ErrorCodes.VacationNotFound, "Vacation not found."); }
+                if (vacationentity == null) { return new Response<VacationDTO>(Enums.ErrorCodes.VacationNotFound, "Vacation not found."); }
                 else
                 {
                     vacationentity.Type = (int)vacation.Type;
@@ -73,27 +73,25 @@ namespace AlphaHRM.BL
                     vacationentity.Status = (int)vacation.Status;
                     vacationentity.Note = vacation.Note;
                     vacationentity.IsDraft = (int)vacation.IsDraft;
+                    vacationentity.UserID = vacation.UserID;
                     await dbcontext.SaveChangesAsync();
-                    return new Response<VacationUpdate>(vacation);
+                    return new Response<VacationDTO>(vacation);
                 }
                 
             }
             catch (Exception ex)
             {
                 logger.LogCritical(ex, "Error at Update/VacationSQLManager");
-                return new Response<VacationUpdate>(Enums.ErrorCodes.Unexpected, "Unexpected error.");
+                return new Response<VacationDTO>(Enums.ErrorCodes.Unexpected, "Unexpected error.");
             }
         }
         public async Task<Response<VacationDTO>> Delete(Guid id)
         {
             try
             {
-                
-
                 var vacationentity = dbcontext.Vacation.FirstOrDefault(vacation => vacation.ID == id);
-                
                 if (vacationentity == null) { return new Response<VacationDTO>(Enums.ErrorCodes.VacationNotFound, "Vacation not found."); }
-                else { dbcontext.Vacation.Remove(vacationentity); var user = dbcontext.User.FirstOrDefault(xvacation => xvacation.ID == vacationentity.UserID); user.VacationCount--; }
+                else { dbcontext.Vacation.Remove(vacationentity); }
                 await dbcontext.SaveChangesAsync();
                 return new Response<VacationDTO>(Enums.ErrorCodes.Success, "Success");
             }
