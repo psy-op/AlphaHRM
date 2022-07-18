@@ -27,9 +27,15 @@ namespace AlphaHRM.BL
         {
             try
             {
-                dbcontext.Vacation.Add(mapper.Map(vacation));
-                await dbcontext.SaveChangesAsync();
-                return new Response<VacationDTO>(vacation);
+                var vacationentity = dbcontext.Vacation.FirstOrDefault(xvacation => xvacation.UserID == vacation.UserID);
+                if (vacationentity == null) { return new Response<VacationDTO>(Enums.ErrorCodes.UserNotFound, "User not found ."); }
+                else {
+                    vacationentity.User.VacationCount++;
+                    dbcontext.Vacation.Add(mapper.Map(vacation));
+                    await dbcontext.SaveChangesAsync();
+                    return new Response<VacationDTO>(vacation);
+                }
+                
             }
             catch (Exception ex)
             {
@@ -69,8 +75,9 @@ namespace AlphaHRM.BL
                     vacationentity.IsDraft = (int)vacation.IsDraft;
                     vacationentity.UserID = vacation.UserID;
                     await dbcontext.SaveChangesAsync();
+                    return new Response<VacationDTO>(vacation);
                 }
-                return new Response<VacationDTO>(vacation);
+                
             }
             catch (Exception ex)
             {

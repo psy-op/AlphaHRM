@@ -1,4 +1,4 @@
-using AlphaHRM.Authentication;
+
 using AlphaHRM.BL;
 using AlphaHRM.DAL;
 using AlphaHRM.Intereface;
@@ -14,6 +14,32 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+
+builder.Services.AddAuthentication(x =>
+{
+	x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+	x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(o =>
+{
+	var Key = Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]);
+	o.SaveToken = true;
+	o.TokenValidationParameters = new TokenValidationParameters
+	{
+		ValidateIssuer = false,
+		ValidateAudience = false,
+		ValidateLifetime = true,
+		ValidateIssuerSigningKey = true,
+		ValidIssuer = builder.Configuration["JWT:Issuer"],
+		ValidAudience = builder.Configuration["JWT:Audience"],
+		IssuerSigningKey = new SymmetricSecurityKey(Key)
+	};
+});
+
+builder.Services.AddSingleton<IJWTManagerRepository, JWTManagerRepository>();
+
+
+
+
 builder.Services.AddControllers();
 builder.Services.AddControllersWithViews();
 builder.Services.AddSession();
@@ -23,6 +49,8 @@ builder.Services.AddTransient<IVacationManager, VacationSQLManager>();
 builder.Services.AddTransient<IUserManager, UserSQLManager>();
 builder.Services.AddTransient<Mapper>();
 builder.Services.AddTransient<Hasher>();
+
+
 //
 
 //
@@ -47,8 +75,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.Use(async (context, next) =>
+{
+    var token = context.Session.GetString("Token");
+    if (!string.IsNullOrEmpty(token))
+    {
+        context.Request.Headers.Add("Authorization", "Bearer " + token);
+    }
+    await next();
+});
+
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

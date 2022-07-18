@@ -1,4 +1,5 @@
-﻿using AlphaHRM.Intereface;
+﻿using AlphaHRM.BL;
+using AlphaHRM.Intereface;
 using AlphaHRM.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -7,7 +8,6 @@ using static AlphaHRM.Models.Enums;
 
 namespace AlphaHRM.Controllers
 {
-    [Authorize]
     [Route("api/[controller]/[action]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -25,8 +25,14 @@ namespace AlphaHRM.Controllers
         {
             try
             {
-                var us = await userservice.Login(req);
-                return Ok(us);
+                //var us = await userservice.Login(req);
+                //return Ok(us);
+                var token = await TokenManager.Authenticate(req);
+                if (token == null)
+                {
+                    return Unauthorized();
+                }
+                return Ok(token);
             }
             catch (Exception ex)
             {
@@ -51,7 +57,7 @@ namespace AlphaHRM.Controllers
         }
         
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public async Task<IActionResult> Get([FromBody] Guid id)
         {
             try
@@ -67,7 +73,7 @@ namespace AlphaHRM.Controllers
         }
 
 
-        [HttpPut]
+        [HttpPut, Authorize]
         public async Task<IActionResult> Update([FromBody] UserDTO user)
         {
             try
@@ -83,7 +89,7 @@ namespace AlphaHRM.Controllers
         }
 
 
-        [HttpDelete]
+        [HttpDelete, Authorize]
         public async Task<IActionResult> Delete([FromBody] Guid id)
         {
             try

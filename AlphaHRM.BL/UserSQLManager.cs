@@ -4,9 +4,12 @@ using AlphaHRM.Models;
 using AlphaHRM.Utilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,6 +22,7 @@ namespace AlphaHRM.BL
         private readonly Mapper mapper;
         private readonly Hasher hasher;
         private readonly EFContext dbcontext;
+
         public UserSQLManager(EFContext dbcontext, Mapper mapper, ILogger<UserSQLManager> logger, Hasher hasher)
         {
             this.dbcontext = dbcontext;
@@ -82,8 +86,9 @@ namespace AlphaHRM.BL
                     userentity.Type = (int)user.Type;
                     userentity.Password = hasher.Hash(user.Password);
                     await dbcontext.SaveChangesAsync();
+                    return new Response<UserDTO>(user);
+
                 }
-                return new Response<UserDTO>(user);
             }
             catch (Exception ex)
             {
@@ -135,26 +140,36 @@ namespace AlphaHRM.BL
         }
 
 
-        public async Task<Response<UserDTO>> Login(LoginRequest req)
+        public async Task<Response<string>> Login(LoginRequest req)
         {
             try
             {
                 var userentity = await dbcontext.User.FirstOrDefaultAsync(user => user.Email == req.Email);
-                if (userentity == null) { return new Response<UserDTO>(Enums.ErrorCodes.UserNotFound, "User not found."); }
+                if (userentity == null) { return new Response<string>(Enums.ErrorCodes.UserNotFound, "User not found."); }
                 else
                 {
                     if (userentity.Password == hasher.Hash(req.Password))
                     {
-                        return new Response<UserDTO>(mapper.Map(userentity));
+                        var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("svtKFemneXZEdWfDAIzgwVSSl0oxdyYzKRMsYXu7"));
+                        var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
+                        var tokeOptions = new JwtSecurityToken(
+                            issuer: "https://localhost:7143/",
+                            audience: "https://localhost:7143/",
+                            claims: new List<Claim>(),
+                            expires: DateTime.Now.AddMinutes(50),
+                            signingCredentials: signinCredentials);
+                        var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
+          
+                        return new Response<string>(tokenString);
                     }
                    
-                return new Response<UserDTO>(Enums.ErrorCodes.InvalidLogin, "Invalid Login");
+                return new Response<string>(Enums.ErrorCodes.InvalidLogin, "Invalid Login");
                 }
             }
             catch (Exception ex)
             {
                 logger.LogCritical(ex, "Error at Login/UserSQLManager");
-                return new Response<UserDTO>(Enums.ErrorCodes.Unexpected, "Unexpected error.");
+                return new Response<string>(Enums.ErrorCodes.Unexpected, "Unexpected error.");
             }
 
         }

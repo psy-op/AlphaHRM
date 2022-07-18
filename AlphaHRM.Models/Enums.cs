@@ -11,6 +11,7 @@
             InvalidLogin = 40,
             ExistingUser = 50,
             ServerError = 60,
+            MaxVacationsReached =70
         }
 
 

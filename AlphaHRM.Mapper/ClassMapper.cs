@@ -21,7 +21,8 @@ namespace AlphaHRM.Utilities
                 Phone = user.Phone,
                 Type = (Enums.UserType)user.Type,
                 ID = user.ID,
-                ManagerId = user.ManagerId
+                ManagerId = user.ManagerId,
+                VacationCount =user.VacationCount
 
             };
             return temp;
@@ -39,9 +40,11 @@ namespace AlphaHRM.Utilities
                 Type = (int)user.Type,
                 ID = user.ID,
                 ManagerId = user.ManagerId,
-                Created = DateTime.Now
+                Created = DateTime.Now,
+                VacationCount = user.VacationCount
 
-        };
+
+            };
             return temp;
         }
 
